@@ -4,6 +4,7 @@
 		"nodejs_compat"
 	],
 	"name": "page-editor-poc",
+	"pages_build_output_dir": "./dist",
 	"d1_databases": [
 		{
 			"binding": "DB",
@@ -17,4 +18,5 @@
 			"bucket_name": "acree-r2"
 		}
 	]
-}
+}
+
