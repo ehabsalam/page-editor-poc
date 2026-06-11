@@ -1,0 +1,183 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { verifySession } from '../../cms/auth';
+
+const sessionCookie = Astro.cookies.get('acree_session')?.value;
+const username = await verifySession(sessionCookie);
+
+if (!username) {
+  return Astro.redirect('/admin/login');
+}
+
+import { env } from 'cloudflare:workers';
+
+const db = env.DB;
+if (!db) {
+  return new Response('Database binding not found', { status: 500 });
+}
+
+// Query pages and fetch both draft and published JSON content for state comparison
+const pagesResult = await db.prepare(`
+  SELECT p.id, p.title, p.slug, 
+         pd.content_json as draft_json, pd.updated_at as draft_updated,
+         pb.content_json as pub_json, pb.published_at as pub_updated
+  FROM pages p
+  LEFT JOIN page_drafts pd ON p.id = pd.page_id
+  LEFT JOIN page_published pb ON p.id = pb.page_id
+  ORDER BY p.title ASC
+`).all();
+
+const pageList = pagesResult.results.map((row: any) => {
+  let status: 'published' | 'draft_only' | 'changes_pending' = 'draft_only';
+  let statusText = 'Draft Only';
+  let badgeClass = 'bg-blue-500/10 border-blue-500/30 text-blue-400';
+
+  if (row.pub_json) {
+    if (row.pub_json === row.draft_json) {
+      status = 'published';
+      statusText = 'Published';
+      badgeClass = 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400';
+    } else {
+      status = 'changes_pending';
+      statusText = 'Changes Pending';
+      badgeClass = 'bg-amber-500/10 border-amber-500/30 text-amber-400';
+    }
+  }
+
+  return {
+    id: row.id,
+    title: row.title,
+    slug: row.slug,
+    updatedAt: new Date(row.draft_updated || row.pub_updated || Date.now()).toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    }),
+    status,
+    statusText,
+    badgeClass,
+  };
+});
+
+// Compute Metrics
+const totalPages = pageList.length;
+const pendingUpdates = pageList.filter(p => p.status === 'changes_pending').length;
+const draftOnly = pageList.filter(p => p.status === 'draft_only').length;
+---
+
+<Layout title="CMS Console | ACREE Admin" description="Manage page structures, drafts, and publish revisions.">
+  <div class="py-12 px-6 max-w-7xl mx-auto bg-slate-950 min-h-[calc(100vh-8rem)]">
+    {/* Upper Header Row */}
+    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-slate-900 pb-8 mb-8">
+      <div>
+        <div class="flex items-center gap-3">
+          <span class="text-xs font-bold uppercase tracking-wider text-indigo-400 bg-indigo-500/10 px-3 py-1 rounded-full border border-indigo-500/20">
+            Staff Console
+          </span>
+          <span class="text-xs text-slate-500">Logged in as {username}</span>
+        </div>
+        <h1 class="text-3xl font-extrabold text-white tracking-tight mt-2">Acree Content Management</h1>
+      </div>
+
+      <button
+        id="logout-btn"
+        class="text-xs font-semibold px-4 py-2 rounded-xl border border-red-500/20 text-red-400 hover:text-red-300 hover:bg-red-950/40 transition-all self-start sm:self-center"
+      >
+        Sign Out
+      </button>
+    </div>
+
+    {/* Metric Bar */}
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-10">
+      <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl">
+        <span class="text-xs text-slate-400 font-bold uppercase tracking-wider block mb-1">Total Pages</span>
+        <span class="text-3xl font-extrabold text-white">{totalPages}</span>
+      </div>
+      <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl">
+        <span class="text-xs text-slate-400 font-bold uppercase tracking-wider block mb-1">Changes Pending</span>
+        <span class="text-3xl font-extrabold text-amber-400">{pendingUpdates}</span>
+      </div>
+      <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl">
+        <span class="text-xs text-slate-400 font-bold uppercase tracking-wider block mb-1">Drafts Only</span>
+        <span class="text-3xl font-extrabold text-blue-400">{draftOnly}</span>
+      </div>
+    </div>
+
+    {/* Table Panel */}
+    <div class="bg-slate-900 border border-slate-800 rounded-3xl overflow-hidden shadow-lg">
+      <div class="px-6 py-5 border-b border-slate-800/80 bg-slate-900/40 flex items-center justify-between">
+        <h3 class="font-extrabold text-lg text-white">Pages Index</h3>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+          <thead>
+            <tr class="border-b border-slate-800/80 text-xs font-bold uppercase tracking-wider text-slate-500 bg-slate-900/10">
+              <th class="px-6 py-4">Page Title</th>
+              <th class="px-6 py-4">Route Path</th>
+              <th class="px-6 py-4">Status</th>
+              <th class="px-6 py-4">Last Updated</th>
+              <th class="px-6 py-4 text-right">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {pageList.map((page) => (
+              <tr class="border-b border-slate-800/40 hover:bg-slate-900/30 transition-colors">
+                <td class="px-6 py-5">
+                  <span class="font-bold text-white text-base block">{page.title}</span>
+                  <span class="text-slate-500 text-xs mt-0.5 block">ID: {page.id}</span>
+                </td>
+                <td class="px-6 py-5">
+                  <code class="text-indigo-300 font-mono text-sm">{page.slug}</code>
+                </td>
+                <td class="px-6 py-5">
+                  <span class={`inline-flex items-center text-xs font-semibold px-2.5 py-1 rounded-md border ${page.badgeClass}`}>
+                    {page.statusText}
+                  </span>
+                </td>
+                <td class="px-6 py-5">
+                  <span class="text-slate-400 text-sm">{page.updatedAt}</span>
+                </td>
+                <td class="px-6 py-5 text-right">
+                  <div class="flex items-center justify-end gap-3">
+                    <a
+                      href={page.slug}
+                      target="_blank"
+                      class="text-xs font-semibold px-3.5 py-2 rounded-xl border border-slate-800 hover:border-slate-700 hover:bg-slate-900 text-slate-300 transition-all"
+                    >
+                      View Live
+                    </a>
+                    <a
+                      href={`/admin/edit?id=${page.id}`}
+                      class="text-xs font-semibold px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white shadow-md transition-all active:scale-95"
+                    >
+                      Edit Layout
+                    </a>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.getElementById('logout-btn')?.addEventListener('click', async () => {
+      if (confirm('Are you sure you want to log out?')) {
+        try {
+          const response = await fetch('/api/auth/logout', { method: 'POST' });
+          if (response.ok) {
+            window.location.href = '/admin/login';
+          }
+        } catch (err) {
+          console.error(err);
+          alert('Failed to log out.');
+        }
+      }
+    });
+  </script>
+</Layout>

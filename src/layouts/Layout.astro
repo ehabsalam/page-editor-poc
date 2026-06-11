@@ -1,0 +1,155 @@
+---
+import '../styles/global.css';
+
+interface Props {
+  title: string;
+  description: string;
+  ogImage?: string;
+}
+
+const { title, description, ogImage = '/images/hero-bg.jpg' } = Astro.props;
+---
+
+<!doctype html>
+<html lang="en" class="scroll-smooth">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    
+    <!-- SEO Meta Tags -->
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta name="generator" content={Astro.generator} />
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={ogImage} />
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:title" content={title} />
+    <meta property="twitter:description" content={description} />
+    <meta property="twitter:image" content={ogImage} />
+
+
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+    
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" href="/favicon.ico" />
+  </head>
+  <body class="bg-slate-950 text-slate-100 font-sans min-h-screen flex flex-col selection:bg-indigo-500 selection:text-white">
+    <!-- Navbar Header -->
+    <header class="sticky top-0 z-40 bg-slate-950/80 backdrop-blur-md border-b border-slate-900">
+      <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+        {/* Logo */}
+        <a href="/" class="flex items-center gap-2 group">
+          <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-indigo-500 to-purple-600 flex items-center justify-center font-bold text-white shadow-[0_0_15px_rgba(99,102,241,0.5)]">
+            A
+          </div>
+          <span class="font-outfit font-extrabold text-xl tracking-tight bg-gradient-to-r from-indigo-200 via-slate-100 to-purple-200 bg-clip-text text-transparent group-hover:from-white group-hover:to-white transition-all">
+            ACREE
+          </span>
+        </a>
+
+        {/* Desktop Nav */}
+        <nav class="hidden md:flex items-center gap-8 text-sm font-semibold tracking-wide text-slate-400">
+          <a href="/" class="text-slate-100 hover:text-white transition-colors">Storefront</a>
+          <a href="/#featured-products" class="hover:text-white transition-colors">Games</a>
+          <a href="/#event-1" class="hover:text-white transition-colors">Tournaments</a>
+          <a href="/#faq-1" class="hover:text-white transition-colors">Support</a>
+        </nav>
+
+        {/* Buttons */}
+        <div class="flex items-center gap-4">
+          <a
+            href="/admin"
+            class="text-xs font-semibold px-3 py-1.5 rounded-lg border border-indigo-500/30 text-indigo-400 hover:text-indigo-300 hover:bg-indigo-950/40 transition-all"
+            id="admin-btn"
+          >
+            Admin Panel
+          </a>
+          <div class="relative cursor-pointer p-2 hover:bg-slate-900 rounded-xl transition-colors">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5 text-slate-300">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5V6a3.75 3.75 0 1 0-7.5 0v4.5m11.356-1.993 1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 0 1-1.12-1.243l1.264-12A1.125 1.125 0 0 1 5.513 7.5h12.974c.576 0 1.059.435 1.119 1.007ZM8.625 10.5a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm7.5 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" />
+            </svg>
+            <span class="absolute top-1 right-1 w-2 h-2 bg-indigo-500 rounded-full"></span>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content Slot -->
+    <main class="flex-grow">
+      <slot />
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-950 border-t border-slate-900 py-12 px-6">
+      <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-8">
+        <div class="flex flex-col items-center md:items-start gap-3">
+          <div class="flex items-center gap-2">
+            <div class="w-6 h-6 rounded-md bg-gradient-to-tr from-indigo-500 to-purple-600 flex items-center justify-center font-bold text-white text-xs">
+              A
+            </div>
+            <span class="font-outfit font-black text-lg text-white">ACREE</span>
+          </div>
+          <p class="text-xs text-slate-500 max-w-sm text-center md:text-left leading-relaxed">
+            ACREE is a fictional portfolio-quality CMS and games ecommerce storefront. All game keys and products featured are demonstration items.
+          </p>
+        </div>
+
+        <div class="flex flex-col items-center md:items-end gap-3 text-center md:text-right">
+          <div class="flex items-center gap-4 text-xs font-semibold text-slate-400">
+            <a href="/" class="hover:text-white transition-colors">Storefront</a>
+            <span>&bull;</span>
+            <a href="/admin" class="hover:text-white transition-colors">CMS Console</a>
+            <span>&bull;</span>
+            <a href="#faq-1" class="hover:text-white transition-colors">FAQ</a>
+          </div>
+          <span class="text-[10px] text-slate-600 tracking-wider uppercase">
+            &copy; 2026 ACREE Guild. Powered by Astro & Cloudflare.
+          </span>
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>
+
+<style is:global>
+  /* Base typography overrides */
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Outfit', sans-serif;
+  }
+  body {
+    font-family: 'Inter', sans-serif;
+  }
+
+  /* Custom glow transitions */
+  @keyframes shine {
+    100% {
+      transform: translateX(100%);
+    }
+  }
+
+  /* Fine-tuned scrollbar styling */
+  ::-webkit-scrollbar {
+    width: 8px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #020617;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #1e1b4b;
+    border-radius: 4px;
+    border: 2px solid #020617;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #312e81;
+  }
+</style>

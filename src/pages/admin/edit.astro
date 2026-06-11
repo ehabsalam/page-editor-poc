@@ -1,0 +1,27 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { verifySession } from '../../cms/auth';
+import { AdminEditor } from '../../cms/components/AdminEditor';
+
+const sessionCookie = Astro.cookies.get('acree_session')?.value;
+const username = await verifySession(sessionCookie);
+
+if (!username) {
+  return Astro.redirect('/admin/login');
+}
+
+const id = Astro.url.searchParams.get('id');
+if (!id) {
+  return Astro.redirect('/admin');
+}
+---
+
+<Layout 
+  title="Visual Page Layout Builder | ACREE Admin" 
+  description="Customize and edit page templates dynamically."
+>
+  <div class="bg-slate-950 text-white min-h-screen">
+    {/* Mount the Editor client-side */}
+    <AdminEditor client:only="react" pageId={id} />
+  </div>
+</Layout>

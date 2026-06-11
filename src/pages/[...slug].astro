@@ -1,0 +1,92 @@
+---
+import Layout from '../layouts/Layout.astro';
+import type { PageContent } from '../cms/types';
+
+import { PromoBannerSection } from '../cms/sections/PromoBanner/PromoBannerSection';
+import { HeroSection } from '../cms/sections/Hero/HeroSection';
+import { FeaturedProductsSection } from '../cms/sections/FeaturedProducts/FeaturedProductsSection';
+import { EventBannerSection } from '../cms/sections/EventBanner/EventBannerSection';
+import { TestimonialsSection } from '../cms/sections/Testimonials/TestimonialsSection';
+import { CtaSection } from '../cms/sections/CTA/CtaSection';
+import { FaqSection } from '../cms/sections/FAQ/FaqSection';
+
+import { env } from 'cloudflare:workers';
+
+const { slug } = Astro.params;
+const normalizedSlug = slug ? `/${slug}` : '/';
+
+const db = env.DB;
+
+if (!db) {
+  return Astro.redirect('/500'); // Fail-safe
+}
+
+// Query the page details and its currently published JSON layout
+const pageResult = await db.prepare(
+  `SELECT p.id, p.title, pb.content_json 
+   FROM pages p 
+   JOIN page_published pb ON p.id = pb.page_id 
+   WHERE p.slug = ?`
+).bind(normalizedSlug).first();
+
+// If page does not exist in published pages, render a clean 404
+if (!pageResult) {
+  return new Response("Page Not Found", { status: 404 });
+}
+
+// Parse the JSON representation of the page layout
+const pageData = JSON.parse(pageResult.content_json as string) as PageContent;
+
+// Pre-fetch relational data like Products on the server to pass down as props
+for (const section of pageData.sections) {
+  if (section.type === 'featuredProducts') {
+    const productIds = section.props.productIds || [];
+    if (productIds.length > 0) {
+      const placeholders = productIds.map(() => '?').join(',');
+      try {
+        const productsQuery = await db.prepare(
+          `SELECT * FROM products WHERE id IN (${placeholders})`
+        ).bind(...productIds).all();
+        
+        section.props.products = productsQuery.results;
+      } catch (err) {
+        console.error("Failed to pre-fetch D1 products for storefront:", err);
+      }
+    }
+  }
+}
+---
+
+<Layout 
+  title={pageData.seo.title} 
+  description={pageData.seo.description} 
+  ogImage={pageData.seo.ogImage}
+>
+  <div class="flex flex-col">
+    {pageData.sections.map((section) => (
+      <>
+        {section.type === 'promoBanner' && (
+          <PromoBannerSection id={section.id} {...section.props as any} client:only="react" />
+        )}
+        {section.type === 'hero' && (
+          <HeroSection id={section.id} {...section.props as any} client:only="react" />
+        )}
+        {section.type === 'featuredProducts' && (
+          <FeaturedProductsSection id={section.id} {...section.props as any} client:only="react" />
+        )}
+        {section.type === 'eventBanner' && (
+          <EventBannerSection id={section.id} {...section.props as any} client:only="react" />
+        )}
+        {section.type === 'testimonials' && (
+          <TestimonialsSection id={section.id} {...section.props as any} client:only="react" />
+        )}
+        {section.type === 'cta' && (
+          <CtaSection id={section.id} {...section.props as any} client:only="react" />
+        )}
+        {section.type === 'faq' && (
+          <FaqSection id={section.id} {...section.props as any} client:only="react" />
+        )}
+      </>
+    ))}
+  </div>
+</Layout>

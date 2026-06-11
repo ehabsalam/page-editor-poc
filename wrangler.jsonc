@@ -1,0 +1,26 @@
+{
+	"compatibility_date": "2026-06-09",
+	"compatibility_flags": ["nodejs_compat"],
+	"name": "page-editor-poc",
+	"main": "@astrojs/cloudflare/entrypoints/server",
+	"assets": {
+		"directory": "./dist",
+		"binding": "ASSETS"
+	},
+	"observability": {
+		"enabled": true
+	},
+	"d1_databases": [
+		{
+			"binding": "DB",
+			"database_name": "acree-db",
+			"database_id": "7484df61-591b-4861-9c6b-9c7fde64c123"
+		}
+	],
+	"r2_buckets": [
+		{
+			"binding": "R2",
+			"bucket_name": "acree-r2"
+		}
+	]
+}

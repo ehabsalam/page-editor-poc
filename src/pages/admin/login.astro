@@ -1,0 +1,121 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { verifySession } from '../../cms/auth';
+
+const sessionCookie = Astro.cookies.get('acree_session')?.value;
+const username = await verifySession(sessionCookie);
+
+if (username) {
+  return Astro.redirect('/admin');
+}
+---
+
+<Layout title="Admin Login | ACREE CMS" description="Access the ACREE page editor and content management dashboard.">
+  <div class="relative min-h-[calc(100vh-8rem)] flex items-center justify-center px-6 overflow-hidden bg-slate-950">
+    {/* Floating glowing backgrounds */}
+    <div class="absolute w-[400px] h-[400px] rounded-full bg-indigo-500/10 blur-[100px] -top-20 -left-20 pointer-events-none"></div>
+    <div class="absolute w-[400px] h-[400px] rounded-full bg-purple-500/10 blur-[100px] -bottom-20 -right-20 pointer-events-none"></div>
+
+    <div class="w-full max-w-md relative z-10">
+      {/* Brand Icon & Heading */}
+      <div class="text-center mb-8">
+        <div class="inline-flex w-14 h-14 rounded-2xl bg-gradient-to-tr from-indigo-500 to-purple-600 items-center justify-center font-black text-2xl text-white shadow-[0_0_25px_rgba(99,102,241,0.4)] mb-4">
+          A
+        </div>
+        <h1 class="text-3xl font-extrabold tracking-tight text-white mb-2">ACREE Editor Console</h1>
+        <p class="text-sm text-slate-400">Sign in to edit pages, reorder sections, and publish revisions.</p>
+      </div>
+
+      {/* Card */}
+      <div class="bg-slate-900/60 border border-slate-800 rounded-3xl p-8 md:p-10 shadow-xl backdrop-blur-md">
+        <form id="login-form" class="space-y-6">
+          {/* Error Container */}
+          <div id="error-message" class="hidden text-xs bg-red-950/50 border border-red-500/30 text-red-300 px-4 py-3 rounded-xl"></div>
+
+          <div>
+            <label for="username" class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">Username</label>
+            <input
+              type="text"
+              id="username"
+              name="username"
+              required
+              placeholder="e.g. admin"
+              class="w-full bg-slate-950/60 border border-slate-800 focus:border-indigo-500 rounded-xl px-4 py-3 text-sm text-slate-100 outline-none transition-all"
+            />
+          </div>
+
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <label for="password" class="block text-xs font-bold uppercase tracking-wider text-slate-400">Password</label>
+            </div>
+            <input
+              type="password"
+              id="password"
+              name="password"
+              required
+              placeholder="••••••••"
+              class="w-full bg-slate-950/60 border border-slate-800 focus:border-indigo-500 rounded-xl px-4 py-3 text-sm text-slate-100 outline-none transition-all"
+            />
+          </div>
+
+          <button
+            type="submit"
+            id="submit-btn"
+            class="w-full py-4 px-6 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-semibold uppercase tracking-wider text-xs shadow-[0_4px_15px_rgba(99,102,241,0.3)] hover:shadow-[0_4px_20px_rgba(99,102,241,0.5)] transition-all flex items-center justify-center gap-2 hover:-translate-y-0.5 active:scale-95"
+          >
+            <span>Sign In</span>
+          </button>
+        </form>
+
+        <div class="mt-6 pt-6 border-t border-slate-800/60 text-center">
+          <p class="text-[11px] text-slate-500 leading-relaxed">
+            Hint: Seeded credentials are <code class="text-indigo-400">admin</code> & <code class="text-indigo-400">acree2026</code>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const form = document.getElementById('login-form') as HTMLFormElement;
+    const submitBtn = document.getElementById('submit-btn') as HTMLButtonElement;
+    const errorMessage = document.getElementById('error-message') as HTMLDivElement;
+
+    form?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      errorMessage.classList.add('hidden');
+      submitBtn.disabled = true;
+      submitBtn.innerText = 'Verifying...';
+
+      const formData = new FormData(form);
+      const data = Object.fromEntries(formData.entries());
+
+      try {
+        const response = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data),
+        });
+
+        const result = await response.json() as { success?: boolean; error?: string };
+
+        if (response.ok && result.success) {
+          // Redirect to admin dashboard
+          window.location.href = '/admin';
+        } else {
+          errorMessage.innerText = result.error || 'Invalid username or password.';
+          errorMessage.classList.remove('hidden');
+          submitBtn.disabled = false;
+          submitBtn.innerText = 'Sign In';
+        }
+      } catch (err) {
+        console.error(err);
+        errorMessage.innerText = 'An network error occurred. Please try again.';
+        errorMessage.classList.remove('hidden');
+        submitBtn.disabled = false;
+        submitBtn.innerText = 'Sign In';
+      }
+    });
+  </script>
+</Layout>
