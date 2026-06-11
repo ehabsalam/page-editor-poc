@@ -8,8 +8,8 @@
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
-    "postbuild": "node -e \"const fs=require('fs');try{fs.rmSync('.wrangler/deploy',{recursive:true,force:true})}catch(e){}\"",
-    "preview": "astro preview",
+    "preview": "wrangler dev",
+    "deploy": "astro build && wrangler deploy",
     "astro": "astro",
     "generate-types": "wrangler types"
   },
