@@ -4,7 +4,6 @@
 		"nodejs_compat"
 	],
 	"name": "page-editor-poc",
-	"main": "./dist/server/entry.mjs",
 	"assets": {
 		"directory": "./dist/client",
 		"binding": "ASSETS"
