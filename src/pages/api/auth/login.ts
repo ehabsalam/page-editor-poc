@@ -1,6 +1,6 @@
 import type { APIRoute } from 'astro';
 import { env } from 'cloudflare:workers';
-import { hashPassword, signSession } from '../../../cms/auth';
+import { verifyPassword, createSession, SESSION_TTL_SECONDS } from '../../../cms/auth';
 
 export const POST: APIRoute = async ({ request, cookies }) => {
   try {
@@ -31,24 +31,23 @@ export const POST: APIRoute = async ({ request, cookies }) => {
       );
     }
 
-    const inputHash = await hashPassword(password);
-    if (inputHash !== user.password_hash) {
+    const passwordValid = await verifyPassword(password, user.password_hash as string);
+    if (!passwordValid) {
       return new Response(
         JSON.stringify({ error: 'Invalid username or password' }),
         { status: 401, headers: { 'Content-Type': 'application/json' } }
       );
     }
 
-    // Sign session token
-    const token = await signSession(username);
+    const token = await createSession(username);
 
-    // Set cookie
+    const isSecure = new URL(request.url).protocol === 'https:';
     cookies.set('acree_session', token, {
       path: '/',
       httpOnly: true,
-      secure: true,
+      secure: isSecure,
       sameSite: 'lax',
-      maxAge: 24 * 60 * 60, // 24 hours
+      maxAge: SESSION_TTL_SECONDS,
     });
 
     return new Response(

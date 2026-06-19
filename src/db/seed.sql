@@ -1,8 +1,8 @@
 -- Seed initial data for ACREE CMS
 
--- Seed Admin User (username: admin, password: password: acree2026, hash is SHA-256)
+-- Seed Admin User (username: admin; password hash is PBKDF2-SHA256, 210k iterations)
 INSERT INTO users (id, username, password_hash)
-VALUES ('admin-1', 'admin', 'b1ad3693dc2c92159e28f136af9609020c9d671f51a1c00b74a01a2c0c05d84f');
+VALUES ('admin-1', 'admin', 'pbkdf2-sha256$210000$kSTbcNbW7g2Qf01WNXnwaw==$MkoB7kvHU+vs7q4sucrAlS5azXJTxhMaTUpjUJlTOv8=');
 
 -- Seed Mock Products Catalog
 INSERT INTO products (id, name, price, image_url, description, category) VALUES
