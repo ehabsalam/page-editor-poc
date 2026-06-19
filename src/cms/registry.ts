@@ -1,4 +1,4 @@
-// Component Registry for ACREE CMS
+// Component Registry for Pixel Tavern CMS
 
 import { PromoBannerSection } from './sections/PromoBanner/PromoBannerSection';
 import { PromoBannerSchema } from './sections/PromoBanner/PromoBannerSchema';
@@ -75,7 +75,7 @@ export const defaultPropsRegistry: Record<string, Record<string, any>> = {
     title: 'What Our Players Say',
     items: [
       {
-        quote: 'ACREE has the fastest key delivery I\'ve ever experienced. I bought Elden Ring and was in the game in less than 2 minutes!',
+        quote: 'Pixel Tavern has the fastest key delivery I\'ve ever experienced. I bought Elden Ring and was in the game in less than 2 minutes!',
         author: 'Marcus V.',
         role: 'Verified Buyer',
         avatar: '/images/avatar-marcus.jpg',
@@ -89,7 +89,7 @@ export const defaultPropsRegistry: Record<string, Record<string, any>> = {
     ],
   },
   cta: {
-    title: 'Join the ACREE Guild',
+    title: 'Join the Pixel Tavern',
     subtitle: 'Sign up for our newsletter to receive weekly discount codes, tournament announcements, and developer interviews.',
     buttonText: 'Join Newsletter',
     buttonLink: '#newsletter',
@@ -103,7 +103,7 @@ export const defaultPropsRegistry: Record<string, Record<string, any>> = {
       },
       {
         question: 'Are the keys authorized?',
-        answer: 'Yes, all game keys sold on ACREE are sourced directly from authorized publishers and distributors. We guarantee 100% genuine keys.',
+        answer: 'Yes, all game keys sold on Pixel Tavern are sourced directly from authorized publishers and distributors. We guarantee 100% genuine keys.',
       },
     ],
   },

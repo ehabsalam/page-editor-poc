@@ -8,7 +8,7 @@ export const PUT: APIRoute = async ({ params, request, cookies }) => {
     const { id } = params;
 
     // Auth Check
-    const sessionCookie = cookies.get('acree_session')?.value;
+    const sessionCookie = cookies.get('pixel_tavern_session')?.value;
     const username = await verifySession(sessionCookie);
     if (!username) {
       return new Response(

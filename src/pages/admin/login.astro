@@ -2,7 +2,7 @@
 import Layout from '../../layouts/Layout.astro';
 import { verifySession } from '../../cms/auth';
 
-const sessionCookie = Astro.cookies.get('acree_session')?.value;
+const sessionCookie = Astro.cookies.get('pixel_tavern_session')?.value;
 const username = await verifySession(sessionCookie);
 
 if (username) {
@@ -10,7 +10,7 @@ if (username) {
 }
 ---
 
-<Layout title="Admin Login | ACREE CMS" description="Access the ACREE page editor and content management dashboard.">
+<Layout title="Admin Login | Pixel Tavern CMS" description="Access the Pixel Tavern page editor and content management dashboard.">
   <div class="relative min-h-[calc(100vh-8rem)] flex items-center justify-center px-6 overflow-hidden bg-slate-950">
     {/* Floating glowing backgrounds */}
     <div class="absolute w-[400px] h-[400px] rounded-full bg-indigo-500/10 blur-[100px] -top-20 -left-20 pointer-events-none"></div>
@@ -20,9 +20,9 @@ if (username) {
       {/* Brand Icon & Heading */}
       <div class="text-center mb-8">
         <div class="inline-flex w-14 h-14 rounded-2xl bg-gradient-to-tr from-indigo-500 to-purple-600 items-center justify-center font-black text-2xl text-white shadow-[0_0_25px_rgba(99,102,241,0.4)] mb-4">
-          A
+          P
         </div>
-        <h1 class="text-3xl font-extrabold tracking-tight text-white mb-2">ACREE Editor Console</h1>
+        <h1 class="text-3xl font-extrabold tracking-tight text-white mb-2">Pixel Tavern Editor Console</h1>
         <p class="text-sm text-slate-400">Sign in to edit pages, reorder sections, and publish revisions.</p>
       </div>
 

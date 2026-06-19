@@ -42,7 +42,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     const token = await createSession(username);
 
     const isSecure = new URL(request.url).protocol === 'https:';
-    cookies.set('acree_session', token, {
+    cookies.set('pixel_tavern_session', token, {
       path: '/',
       httpOnly: true,
       secure: isSecure,

@@ -14,7 +14,7 @@ const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 export const GET: APIRoute = async ({ cookies }) => {
   try {
     // Auth Check
-    const sessionCookie = cookies.get('acree_session')?.value;
+    const sessionCookie = cookies.get('pixel_tavern_session')?.value;
     const username = await verifySession(sessionCookie);
     if (!username) {
       return new Response(
@@ -51,7 +51,7 @@ export const GET: APIRoute = async ({ cookies }) => {
 export const POST: APIRoute = async ({ request, cookies }) => {
   try {
     // Auth Check
-    const sessionCookie = cookies.get('acree_session')?.value;
+    const sessionCookie = cookies.get('pixel_tavern_session')?.value;
     const username = await verifySession(sessionCookie);
     if (!username) {
       return new Response(

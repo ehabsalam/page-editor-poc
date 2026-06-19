@@ -3,7 +3,7 @@ import Layout from '../../layouts/Layout.astro';
 import { verifySession } from '../../cms/auth';
 import { AdminEditor } from '../../cms/components/AdminEditor';
 
-const sessionCookie = Astro.cookies.get('acree_session')?.value;
+const sessionCookie = Astro.cookies.get('pixel_tavern_session')?.value;
 const username = await verifySession(sessionCookie);
 
 if (!username) {
@@ -17,7 +17,7 @@ if (!id) {
 ---
 
 <Layout 
-  title="Visual Page Layout Builder | ACREE Admin" 
+  title="Visual Page Layout Builder | Pixel Tavern Admin" 
   description="Customize and edit page templates dynamically."
 >
   <div class="bg-slate-950 text-white min-h-screen">

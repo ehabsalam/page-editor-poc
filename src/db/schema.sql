@@ -1,4 +1,4 @@
--- Database Schema for ACREE CMS
+-- Database Schema for Pixel Tavern CMS
 
 -- Admin Users (Simple credentials storage)
 CREATE TABLE IF NOT EXISTS users (
