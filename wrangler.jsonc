@@ -3,7 +3,7 @@
 	"compatibility_flags": [
 		"nodejs_compat"
 	],
-	"name": "page-editor-poc",
+	"name": "page-editor-poc2",
 	"assets": {
 		"directory": "./dist/client",
 		"binding": "ASSETS"
